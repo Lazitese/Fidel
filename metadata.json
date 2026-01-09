@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Fidel AI - Ethiopian Education Assistant",
+  "description": "A conversational Amharic voice app for secular KG-12 education.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
