@@ -1,6 +1,6 @@
 
 import { UserWallet, DepositRecord, UserProfile } from '../types';
-import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.39.7';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * FIDEL AI - DATABASE REPAIR SCRIPT
@@ -83,7 +83,12 @@ class ApiService {
           throw new Error("የተሳሳተ የይለፍ ቃል! (Incorrect password)");
         }
         this.currentUserId = existingUser.id;
-        const profile = { id: existingUser.id, full_name: existingUser.full_name, grade: existingUser.grade || 'Grade 1' };
+        const profile: UserProfile = {
+          id: existingUser.id,
+          full_name: existingUser.full_name,
+          grade: existingUser.grade || 'Grade 1',
+          role: existingUser.role as 'student' | 'admin' || 'student'
+        };
         await this.localAction(STORES.USER, 'readwrite', (s) => s.put(profile, 'current_user'));
         return profile;
       }
@@ -101,7 +106,7 @@ class ApiService {
 
       if (insertError) {
         if (insertError.message.includes('column "grade" does not exist')) {
-           throw new Error("የዳታቤዝ ስህተት፡ እባክዎን የ Supabase SQL ስክሪፕቱን ያሂዱ። (Database error: Please run the SQL script to add the 'grade' column).");
+          throw new Error("የዳታቤዝ ስህተት፡ እባክዎን የ Supabase SQL ስክሪፕቱን ያሂዱ። (Database error: Please run the SQL script to add the 'grade' column).");
         }
         throw new Error(`Registration failed: ${insertError.message}`);
       }
@@ -109,7 +114,12 @@ class ApiService {
       await this.supabase.from('wallets').insert([{ id: newUser.id, balance_etb: 5.00, pending_deposits: 0 }]);
 
       this.currentUserId = newUser.id;
-      const profile = { id: newUser.id, full_name: newUser.full_name, grade: newUser.grade };
+      const profile: UserProfile = {
+        id: newUser.id,
+        full_name: newUser.full_name,
+        grade: newUser.grade,
+        role: newUser.role as 'student' | 'admin' || 'student'
+      };
       await this.localAction(STORES.USER, 'readwrite', (s) => s.put(profile, 'current_user'));
       return profile;
     } catch (e: any) {
@@ -126,7 +136,7 @@ class ApiService {
       .upload(fileName, file, { cacheControl: '3600', upsert: false });
 
     if (error) throw new Error(`Upload failed: ${error.message}. Make sure you created a public bucket named 'deposits' in Supabase.`);
-    
+
     const { data: urlData } = this.supabase.storage.from('deposits').getPublicUrl(data.path);
     return urlData.publicUrl;
   }
@@ -168,16 +178,38 @@ class ApiService {
         .select('*')
         .eq('profile_id', this.currentUserId)
         .order('created_at', { ascending: false });
-      
+
       if (data) {
         const mapped = data.map(d => ({
           id: d.id,
           amount: d.amount,
           timestamp: d.created_at,
           status: d.status,
-          screenshotUrl: d.screenshot_url
+          screenshotUrl: d.screenshot_url,
+          userId: d.profile_id
         }));
         return mapped;
+      }
+    }
+    return [];
+  }
+
+  async getAllDeposits(): Promise<DepositRecord[]> {
+    if (this.supabase) {
+      const { data } = await this.supabase
+        .from('deposits')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (data) {
+        return data.map(d => ({
+          id: d.id,
+          amount: d.amount,
+          timestamp: d.created_at,
+          status: d.status,
+          screenshotUrl: d.screenshot_url,
+          userId: d.profile_id
+        }));
       }
     }
     return [];
@@ -204,6 +236,29 @@ class ApiService {
     }
   }
 
+  async updateUserWallet(userId: string, amountChange: number): Promise<void> {
+    if (this.supabase) {
+      // Fetch current wallet
+      const { data: walletData, error: fetchError } = await this.supabase
+        .from('wallets')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const newBalance = (walletData.balance_etb || 0) + amountChange;
+      const newPending = Math.max(0, (walletData.pending_deposits || 0) - (amountChange > 0 ? 1 : 0)); // Rough logic: if adding money, assume one pending cleared
+
+      const { error: updateError } = await this.supabase.from('wallets').update({
+        balance_etb: newBalance,
+        pending_deposits: newPending
+      }).eq('id', userId);
+
+      if (updateError) throw updateError;
+    }
+  }
+
   async getTotalTokens(): Promise<number> {
     const tokens = await this.localAction<number>(STORES.USAGE, 'readonly', (s) => s.get('lifetime_tokens'));
     return tokens || 0;
@@ -211,10 +266,88 @@ class ApiService {
 
   async setTotalTokens(tokens: number): Promise<void> {
     await this.localAction(STORES.USAGE, 'readwrite', (s) => s.put(tokens, 'lifetime_tokens'));
+
+    if (this.supabase && this.currentUserId) {
+      const { error } = await this.supabase
+        .from('wallets')
+        .update({ total_tokens_used: tokens })
+        .eq('id', this.currentUserId);
+      if (error) console.error("Failed to sync tokens", error);
+    }
   }
 
   getCloudStatus() {
     return "Supabase Cloud Pro";
+  }
+
+  async getUsersWithStats(): Promise<import('../types').UserStats[]> {
+    if (!this.supabase) return [];
+
+    const [profilesData, walletsData, depositsData] = await Promise.all([
+      this.supabase.from('profiles').select('*').order('full_name'),
+      this.supabase.from('wallets').select('*'),
+      this.supabase.from('deposits').select('*').eq('status', 'approved')
+    ]);
+
+    if (profilesData.error) throw profilesData.error;
+
+    const wallets = walletsData.data || [];
+    const deposits = depositsData.data || [];
+
+    return (profilesData.data || []).map(profile => {
+      const wallet = wallets.find(w => w.id === profile.id);
+      const userDeposits = deposits.filter(d => d.profile_id === profile.id);
+      const totalDeposited = userDeposits.reduce((sum, d) => sum + d.amount, 0);
+
+      return {
+        id: profile.id,
+        full_name: profile.full_name,
+        grade: profile.grade,
+        role: profile.role || 'student',
+        balanceETB: wallet?.balance_etb || 0,
+        pendingDeposits: wallet?.pending_deposits || 0,
+        totalTokensUsed: wallet?.total_tokens_used || 0,
+        totalDeposited: totalDeposited
+      };
+    });
+  }
+
+  async getAllUsers(): Promise<UserProfile[]> {
+    if (this.supabase) {
+      const { data, error } = await this.supabase
+        .from('profiles')
+        .select('*')
+        .order('full_name', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    }
+    return [];
+  }
+
+  async updateUser(userId: string, updates: Partial<UserProfile>): Promise<void> {
+    if (this.supabase) {
+      const { error } = await this.supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', userId);
+      if (error) throw error;
+    }
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    if (this.supabase) {
+      const { error } = await this.supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+      if (error) throw error;
+    }
+  }
+
+  async logout(): Promise<void> {
+    this.currentUserId = null;
+    await this.localAction(STORES.USER, 'readwrite', (s) => s.delete('current_user'));
+    await this.localAction(STORES.WALLET, 'readwrite', (s) => s.delete('main_wallet'));
   }
 }
 

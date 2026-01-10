@@ -6,10 +6,10 @@ export const TELEBIRR_NUMBER = "0900424494";
  * To get 30% Profit Margin: Cost / (1 - 0.30) = 9 / 0.7 ≈ 12.86 ETB.
  * Rate per token = 12.86 / 1,000,000 = 0.00001286
  */
-export const TOKEN_TO_ETB_RATE = 0.00001286; 
+export const TOKEN_TO_ETB_RATE = 0.00001286;
 export const MIN_DEPOSIT_ETB = 50;
 
-export const ADMIN_PASSWORD = "lazadmin_fidel";
+// End of constants
 
 export const SYSTEM_INSTRUCTION = `
 You are "Fidel AI" (ፊደል ኤአይ), the premier Ethiopian AI Tutor.

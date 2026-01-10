@@ -1,0 +1,29 @@
+<!-- Waveform SVG -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" fill="none">
+  <rect x="50" y="180" width="8" height="40" rx="4" fill="#064e3b"/>
+  <rect x="70" y="150" width="8" height="100" rx="4" fill="#064e3b"/>
+  <rect x="90" y="170" width="8" height="60" rx="4" fill="#064e3b"/>
+  <rect x="110" y="160" width="8" height="80" rx="4" fill="#064e3b"/>
+  <rect x="130" y="140" width="8" height="120" rx="4" fill="#064e3b"/>
+  <rect x="150" y="170" width="8" height="60" rx="4" fill="#064e3b"/>
+  <rect x="170" y="180" width="8" height="40" rx="4" fill="#064e3b"/>
+  <rect x="190" y="160" width="8" height="80" rx="4" fill="#064e3b"/>
+  <rect x="210" y="150" width="8" height="100" rx="4" fill="#064e3b"/>
+  <rect x="230" y="130" width="8" height="140" rx="4" fill="#064e3b"/>
+  <rect x="250" y="110" width="8" height="180" rx="4" fill="#064e3b"/>
+  <rect x="270" y="140" width="8" height="120" rx="4" fill="#064e3b"/>
+  <rect x="290" y="160" width="8" height="80" rx="4" fill="#064e3b"/>
+  <rect x="310" y="120" width="8" height="160" rx="4" fill="#064e3b"/>
+  <rect x="330" y="100" width="8" height="200" rx="4" fill="#064e3b"/>
+  <rect x="350" y="130" width="8" height="140" rx="4" fill="#064e3b"/>
+  <rect x="370" y="150" width="8" height="100" rx="4" fill="#064e3b"/>
+  <rect x="390" y="140" width="8" height="120" rx="4" fill="#064e3b"/>
+  <rect x="410" y="160" width="8" height="80" rx="4" fill="#064e3b"/>
+  <rect x="430" y="170" width="8" height="60" rx="4" fill="#064e3b"/>
+  <rect x="450" y="180" width="8" height="40" rx="4" fill="#064e3b"/>
+  <rect x="470" y="170" width="8" height="60" rx="4" fill="#064e3b"/>
+  <rect x="490" y="160" width="8" height="80" rx="4" fill="#064e3b"/>
+  <rect x="510" y="150" width="8" height="100" rx="4" fill="#064e3b"/>
+  <rect x="530" y="170" width="8" height="60" rx="4" fill="#064e3b"/>
+  <rect x="550" y="180" width="8" height="40" rx="4" fill="#064e3b"/>
+</svg>
