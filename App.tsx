@@ -84,7 +84,6 @@ const App: React.FC = () => {
   const handleAddDeposit = async (amount: number, screenshot: File) => {
     setIsSyncing(true);
     try {
-      // Production Grade: Upload to Supabase Storage, not as Base64 in DB
       const publicUrl = await api.uploadScreenshot(screenshot);
       
       const newDeposit: DepositRecord = {
@@ -189,7 +188,7 @@ const App: React.FC = () => {
         <form onSubmit={handleLogin} className="glass-panel p-10 rounded-[3.5rem] w-full max-w-sm space-y-8 relative z-10 shadow-2xl">
           <div className="text-center">
             <Logo size="lg" className="mx-auto mb-6" />
-            <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight text-black">Admin Gate</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">Admin Gate</h2>
           </div>
           <input 
             type="password" 
@@ -251,7 +250,7 @@ const App: React.FC = () => {
         )}
       </div>
 
-      <nav className="fixed bottom-8 left-8 right-8 h-20 glass-panel rounded-[2.5rem] border border-white/50 shadow-2xl flex justify-around items-center z-50 px-6">
+      <nav className="fixed bottom-8 left-8 right-8 h-20 glass-panel rounded-[2.5rem] border border-white/50 shadow-2xl flex justify-around items-center z-50 px-6 safe-pb">
         <button onClick={() => setActiveTab('chat')} className={`relative flex flex-col items-center gap-1 transition-all duration-300 w-1/2 ${activeTab === 'chat' ? 'text-emerald-700' : 'text-slate-400'}`}>
           {activeTab === 'chat' && <div className="absolute -top-3 w-12 h-1 bg-emerald-700 rounded-full" />}
           <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill={activeTab === 'chat' ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor">
