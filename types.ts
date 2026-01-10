@@ -1,4 +1,10 @@
 
+export interface UserProfile {
+  id: string;
+  full_name: string;
+  grade: string;
+}
+
 export interface TokenUsage {
   totalTokens: number;
   totalCostETB: number;
@@ -12,7 +18,7 @@ export interface UserWallet {
 export interface DepositRecord {
   id: string;
   amount: number;
-  timestamp: string; // ISO string for persistence
+  timestamp: string;
   status: 'pending' | 'approved' | 'rejected';
   screenshotUrl: string;
 }

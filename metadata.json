@@ -1,6 +1,6 @@
 {
-  "name": "Copy of Fidel AI - Ethiopian Education Assistant",
-  "description": "A conversational Amharic voice app for secular KG-12 education.",
+  "name": "Fidel AI - Ethiopian Education Assistant",
+  "description": "A conversational Amharic voice app for secular KG-12 education. Includes ETB token tracking and Telebirr deposit management.",
   "requestFramePermissions": [
     "microphone",
     "camera"

@@ -2,13 +2,15 @@
 {
   "name": "Fidel AI (ፊደል ኤአይ)",
   "short_name": "Fidel AI",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#009B3A",
+  "theme_color": "#064e3b",
+  "description": "Ethiopian KG-12 Education Voice Assistant",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3443/3443338.png",
+      "src": "https://cdn-icons-png.sh/512/3443/3443338.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
