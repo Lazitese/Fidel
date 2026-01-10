@@ -22,7 +22,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', className = '', variant
   return (
     <div className={`${dimensions[size]} ${className} flex items-center justify-center`}>
       <img
-        src="/logo (2).png"
+        src="/logo.png"
         alt="Fidel AI Logo"
         className="w-full h-full object-contain"
       />
