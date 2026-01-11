@@ -70,8 +70,8 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
       }
       setFrequencies(newFreqs);
     } else {
-      setFrequencies(prev => prev.map(f => f * 0.85));
-      setVolume(prev => prev * 0.9);
+      setFrequencies(prev => prev.map(f => f * 0.9));
+      setVolume(prev => prev * 0.95);
     }
     animationFrameRef.current = requestAnimationFrame(updateFrequencies);
   }, [isModelSpeaking]);
@@ -88,6 +88,8 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
       
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const AudioCtx = (window.AudioContext || (window as any).webkitAudioContext);
+      
+      // Initialize Audio Contexts
       audioContextRef.current = new AudioCtx({ sampleRate: 16000 });
       outContextRef.current = new AudioCtx({ sampleRate: 24000 });
       
@@ -108,7 +110,7 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
 
       updateFrequencies();
 
-      const studentContext = `\nSTUDENT PROFILE: Currently in ${grade}.\nTailor your language complexity, terminology, and depth of explanation to a student in this specific grade. A KG student needs stories and basic counting, while a Grade 12 student needs technical depth for national exams.`;
+      const studentContext = `\nSTUDENT PROFILE: Currently in ${grade}.\nTailor your language complexity, terminology, and depth of explanation to a student in this specific grade. A KG student needs stories and basic counting, while a Grade 12 student needs technical depth for national exams. Respond to the user in Amharic only.`;
 
       const sessionPromise = ai.live.connect({
         model: APP_MODELS.LIVE,
@@ -121,6 +123,7 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
               scriptProcessor.onaudioprocess = (e) => {
                 const inputData = e.inputBuffer.getChannelData(0);
                 const pcmBlob = createPcmBlob(inputData);
+                // Token tracking estimate (approx 0.15 ETB per minute of usage)
                 onTokenUsed(Math.ceil(0.256 * 150)); 
                 sessionPromise.then((session) => { 
                   if (session) session.sendRealtimeInput({ media: pcmBlob }); 
@@ -159,7 +162,7 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
             }
           },
           onerror: (e) => {
-            setError("የግንኙነት ስህተት!");
+            setError("የግንኙነት ስህተት ተከስቷል! (Connection Error)");
             stopSession();
           },
           onclose: () => setIsActive(false)
@@ -167,7 +170,7 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
-          systemInstruction: SYSTEM_INSTRUCTION + studentContext + "\nRespond instantly. Be concise. High-quality Ethiopian teacher persona.",
+          systemInstruction: SYSTEM_INSTRUCTION + studentContext + "\nRespond instantly and be encouraging.",
         },
       });
       sessionRef.current = await sessionPromise;
@@ -175,7 +178,7 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         setPermissionError(true);
       } else {
-        setError("ሚክሮፎኑን መክፈት አልተቻለም።");
+        setError("ማይክሮፎኑን መክፈት አልተቻለም (Could not access microphone)");
       }
       setIsConnecting(false);
     }
@@ -185,9 +188,10 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
 
   return (
     <div className="flex flex-col items-center h-full bg-[#fdfdfd] relative overflow-hidden pt-10 select-none">
+      {/* Background Orbs */}
       <div className={`absolute top-0 left-0 w-full h-full pointer-events-none transition-all duration-[1000ms] ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-        <div className={`absolute top-[15%] left-[-15%] w-[450px] h-[450px] rounded-full blur-[140px] transition-colors duration-1000 ${isModelSpeaking ? 'bg-amber-200/30' : 'bg-emerald-200/40'}`} />
-        <div className={`absolute bottom-[15%] right-[-15%] w-[450px] h-[450px] rounded-full blur-[140px] transition-colors duration-1000 ${isModelSpeaking ? 'bg-orange-200/20' : 'bg-teal-200/30'}`} style={{ animationDelay: '1s' }} />
+        <div className={`absolute top-[15%] left-[-15%] w-[450px] h-[450px] rounded-full blur-[140px] transition-colors duration-1000 ${isModelSpeaking ? 'bg-amber-200/40' : 'bg-emerald-200/50'}`} />
+        <div className={`absolute bottom-[15%] right-[-15%] w-[450px] h-[450px] rounded-full blur-[140px] transition-colors duration-1000 ${isModelSpeaking ? 'bg-orange-200/30' : 'bg-teal-200/40'}`} style={{ animationDelay: '1s' }} />
       </div>
 
       {permissionError && (
@@ -215,74 +219,77 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
 
       <div className="flex-1 flex flex-col items-center justify-center w-full relative z-10 py-6">
         <div className="relative flex items-center justify-center">
+          {/* Circular Frequency Ring */}
           <div className={`absolute w-[360px] h-[360px] flex items-center justify-center transition-all duration-700 ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
              {frequencies.map((v, i) => {
                const angle = (i / frequencies.length) * 360;
-               const radius = 170 + (v / 255) * 40;
+               const radius = 170 + (v / 255) * 50;
                return (
                  <div 
                    key={i}
                    className={`absolute w-1.5 rounded-full transition-all duration-75 ${isModelSpeaking ? 'bg-amber-400' : 'bg-emerald-500'}`}
                    style={{
-                     height: `${Math.max(4, (v / 255) * 60)}px`,
+                     height: `${Math.max(4, (v / 255) * 70)}px`,
                      transform: `rotate(${angle}deg) translateY(-${radius}px)`,
-                     opacity: 0.1 + (v / 255) * 0.9,
-                     filter: isActive ? 'drop-shadow(0 0 8px currentColor)' : 'none'
+                     opacity: 0.15 + (v / 255) * 0.85,
+                     filter: isActive ? 'drop-shadow(0 0 10px currentColor)' : 'none'
                    }}
                  />
                );
              })}
           </div>
 
-          <div className={`relative flex items-center justify-center transition-all duration-[1000ms] ${isActive ? 'scale-100' : 'scale-90'}`}>
+          <div className={`relative flex items-center justify-center transition-all duration-[1000ms] ${isActive ? 'scale-105' : 'scale-90'}`}>
+            {/* Glowing Aura */}
             <div 
-              className={`absolute rounded-full transition-all duration-200 blur-[80px] ${
+              className={`absolute rounded-full transition-all duration-300 blur-[90px] ${
                 isActive 
                   ? (isModelSpeaking ? 'bg-amber-400' : 'bg-emerald-400') 
                   : 'bg-transparent'
               }`} 
               style={{ 
-                width: `${280 + (volume * 1.5)}px`, 
-                height: `${280 + (volume * 1.5)}px`,
-                opacity: 0.2 + (volume / 255) * 0.5
+                width: `${300 + (volume * 1.8)}px`, 
+                height: `${300 + (volume * 1.8)}px`,
+                opacity: 0.25 + (volume / 255) * 0.5
               }}
             />
 
+            {/* Central Orb */}
             <div className={`w-64 h-64 rounded-[42%] transition-all duration-[800ms] shadow-2xl flex items-center justify-center border-4 border-white overflow-hidden relative ${
               isActive 
                 ? (isModelSpeaking ? 'bg-gradient-to-tr from-amber-600 via-orange-500 to-amber-300 ring-8 ring-amber-500/10' : 'bg-gradient-to-br from-[#064e3b] via-emerald-600 to-teal-400 ring-8 ring-emerald-500/10') 
                 : 'bg-slate-100 border-slate-200'
             }`}
             style={{
-              transform: isActive ? `scale(${1 + (volume / 1000)}) rotate(${isModelSpeaking ? volume/10 : 0}deg)` : 'none'
+              transform: isActive ? `scale(${1 + (volume / 800)}) rotate(${isModelSpeaking ? volume/8 : 0}deg)` : 'none'
             }}>
               <div className={`relative transition-all duration-1000 transform ${isActive ? 'scale-110 opacity-100 drop-shadow-xl' : 'scale-90 opacity-20'}`}>
                 <Logo size="lg" />
               </div>
               {isActive && (
                 <div 
-                  className={`absolute bottom-0 left-0 right-0 transition-all duration-300 pointer-events-none ${isModelSpeaking ? 'bg-white/20' : 'bg-white/10'}`} 
-                  style={{ height: `${20 + (volume / 2)}%` }}
+                  className={`absolute bottom-0 left-0 right-0 transition-all duration-300 pointer-events-none ${isModelSpeaking ? 'bg-white/25' : 'bg-white/15'}`} 
+                  style={{ height: `${20 + (volume / 1.8)}%` }}
                 />
               )}
             </div>
           </div>
         </div>
 
-        <div className="mt-20 text-center space-y-3">
-           <div className={`text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 ${isActive ? (isModelSpeaking ? 'text-amber-600' : 'text-emerald-600') : 'text-slate-400'}`}>
-             {isActive ? (isModelSpeaking ? 'Fidel AI Speaking' : 'Listening...') : `${grade} Education Portal`}
+        <div className="mt-20 text-center space-y-4">
+           <div className={`text-[11px] font-black uppercase tracking-[0.4em] transition-all duration-500 ${isActive ? (isModelSpeaking ? 'text-amber-600' : 'text-emerald-600') : 'text-slate-400'}`}>
+             {isActive ? (isModelSpeaking ? 'Fidel AI Speaking' : 'Listening...') : `${grade} Education Assistant`}
            </div>
-           <h2 className={`Amharic-font text-2xl font-black transition-all duration-500 ${isActive ? 'text-slate-900 opacity-100' : 'text-slate-300 opacity-50'}`}>
-             {isActive ? (isModelSpeaking ? 'በማዳመጥ ላይ...' : 'ምን ላግዝዎት?') : 'ትምህርት ለመጀመር ይጫኑ'}
+           <h2 className={`Amharic-font text-3xl font-black transition-all duration-500 px-6 max-w-sm ${isActive ? 'text-slate-900 opacity-100' : 'text-slate-300 opacity-50'}`}>
+             {isActive ? (isModelSpeaking ? 'በማዳመጥ ላይ...' : 'ምን ልርዳዎት?') : 'ትምህርት ለመጀመር ከታች ይጫኑ'}
            </h2>
         </div>
 
-        <div className="mt-12 w-full px-12 flex flex-col items-center">
+        <div className="mt-14 w-full px-12 flex flex-col items-center">
           <button
             onClick={isActive ? stopSession : startSession}
             disabled={isConnecting}
-            className={`w-full max-w-[280px] py-6 rounded-[2.5rem] font-black text-xl shadow-2xl transform active:scale-95 transition-all duration-500 flex items-center justify-center gap-4 border-b-4 ${
+            className={`w-full max-w-[300px] py-6 rounded-[2.5rem] font-black text-xl shadow-2xl transform active:scale-95 transition-all duration-500 flex items-center justify-center gap-4 border-b-4 ${
               isActive 
                 ? 'bg-slate-900 border-slate-950 text-white shadow-slate-200' 
                 : 'bg-gradient-to-br from-[#064e3b] via-emerald-800 to-emerald-900 border-[#032e23] text-white shadow-emerald-900/40'
@@ -292,7 +299,7 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
               <div className="w-7 h-7 border-4 border-white/20 border-t-white rounded-full animate-spin" />
             ) : isActive ? (
               <>
-                <div className="w-3.5 h-3.5 bg-red-500 rounded-full animate-pulse ring-4 ring-red-500/20" />
+                <div className="w-3.5 h-3.5 bg-red-500 rounded-full animate-pulse ring-4 ring-red-500/30" />
                 <span className="Amharic-font tracking-tight">ጨርስ</span>
               </>
             ) : (
@@ -309,8 +316,8 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
 
       <div className="fixed bottom-28 left-0 right-0 flex justify-center px-10 pointer-events-none">
         {error && (
-          <div className="p-5 bg-red-50 text-red-700 rounded-3xl text-[11px] font-black border border-red-100 shadow-lg text-center animate-shake flex items-center justify-center gap-3 pointer-events-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="p-5 bg-red-50 text-red-700 rounded-3xl text-[12px] font-black border border-red-100 shadow-xl text-center animate-shake flex items-center justify-center gap-3 pointer-events-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             {error}
@@ -322,7 +329,7 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({ onTokenUsed, bal
         .Amharic-font { font-family: 'Noto Sans Ethiopic', sans-serif; }
         .animate-shake { animation: shake 0.4s ease-in-out; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
       `}</style>
     </div>
