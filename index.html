@@ -1,28 +1,76 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Fidel AI</title>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" type="image/png" href="/icon.png">
-  <link rel="stylesheet" href="index.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Fidel AI (ፊደል ኤአይ)</title>
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Native Experience Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#064e3b">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Ethiopic:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sat: env(safe-area-inset-top);
+            --sar: env(safe-area-inset-right);
+            --sab: env(safe-area-inset-bottom);
+            --sal: env(safe-area-inset-left);
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
 
-  <!-- Android Native Optimizations -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#064e3b">
+        input, textarea, select {
+            user-select: text !important;
+            touch-action: auto !important;
+        }
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Ethiopic:wght@400;500;700;900&display=swap"
-    rel="stylesheet">
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Ethiopic', sans-serif;
+            background-color: #fdfdfd;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            overscroll-behavior-y: none;
+        }
 
-  <script type="importmap">
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .safe-pt { padding-top: calc(12px + var(--sat)); }
+        .safe-pb { padding-bottom: calc(12px + var(--sab)); }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        
+        /* Smooth fade transitions */
+        .fade-enter { opacity: 0; transform: scale(0.98); }
+        .fade-enter-active { opacity: 1; transform: scale(1); transition: all 300ms ease-out; }
+    </style>
+<script type="importmap">
 {
   "imports": {
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
@@ -33,20 +81,18 @@
 }
 </script>
 </head>
-
 <body>
-  <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        // Changed to relative path to fix Origin Mismatch errors in preview/wrapper environments
-        navigator.serviceWorker.register('sw.js').catch(err => {
-          console.warn('SW registration failed: ', err);
+    <div id="root"></div>
+    <script>
+      // Using relative path 'sw.js' ensures the Service Worker registers correctly 
+      // regardless of the subpath or environment origin (e.g. GitHub Pages, Vercel, etc.)
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Fidel AI ServiceWorker ready'))
+            .catch(err => console.warn('SW registration failed: ', err));
         });
-      });
-    }
-  </script>
+      }
+    </script>
 </body>
-
 </html>

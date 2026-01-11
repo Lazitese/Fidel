@@ -14,8 +14,8 @@ export const Registration: React.FC<RegistrationProps> = ({ onComplete }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const grades = [
-    "KG", "Grade 1", "Grade 2", "Grade 3", "Grade 4",
-    "Grade 5", "Grade 6", "Grade 7", "Grade 8",
+    "KG", "Grade 1", "Grade 2", "Grade 3", "Grade 4", 
+    "Grade 5", "Grade 6", "Grade 7", "Grade 8", 
     "Grade 9", "Grade 10", "Grade 11", "Grade 12"
   ];
 
@@ -32,15 +32,15 @@ export const Registration: React.FC<RegistrationProps> = ({ onComplete }) => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#fdfdfd] px-4 py-6 relative overflow-hidden">
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-[#fdfdfd] p-8 relative overflow-hidden">
       <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-emerald-100/30 rounded-full blur-[100px]" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-amber-100/20 rounded-full blur-[100px]" />
 
-      <div className="w-full max-w-sm space-y-6 relative z-10 text-center animate-fade-in">
-        <div className="space-y-4">
-          <Logo size="md" className="mx-auto" />
-          <div className="space-y-1">
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter leading-tight Amharic-font">
+      <div className="w-full max-w-sm space-y-12 relative z-10 text-center animate-fade-in">
+        <div className="space-y-6">
+          <Logo size="xl" className="mx-auto" />
+          <div className="space-y-2">
+            <h1 className="text-4xl font-black text-slate-900 tracking-tighter leading-tight Amharic-font">
               {isLogin ? 'እንኳን ደህና መጡ!' : 'አዲስ አካውንት'}
             </h1>
             <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">
@@ -49,40 +49,40 @@ export const Registration: React.FC<RegistrationProps> = ({ onComplete }) => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 glass-panel p-6 rounded-3xl border border-white/60 shadow-2xl">
+        <form onSubmit={handleSubmit} className="space-y-6 glass-panel p-10 rounded-[3rem] border border-white/60 shadow-2xl overflow-y-auto max-h-[60vh]">
           <div className="space-y-4 text-left">
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 mb-2">Full Name / ሙሉ ስም</label>
+              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest px-1 mb-2">Full Name / ሙሉ ስም</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Abebe Balcha"
-                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-base text-black"
+                className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-lg text-black"
                 required
                 disabled={isLoading}
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 mb-2">Password / የይለፍ ቃል</label>
+              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest px-1 mb-2">Password / የይለፍ ቃል</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-base text-black"
+                className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-lg text-black"
                 required
                 disabled={isLoading}
               />
             </div>
-
+            
             {!isLogin && (
               <div className="animate-slide-down">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 mb-2">Grade Level / የትምህርት ደረጃ</label>
+                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest px-1 mb-2">Grade Level / የትምህርት ደረጃ</label>
                 <select
                   value={grade}
                   onChange={(e) => setGrade(e.target.value)}
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-base text-black appearance-none"
+                  className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-lg text-black appearance-none"
                   required
                   disabled={isLoading}
                 >
@@ -95,14 +95,14 @@ export const Registration: React.FC<RegistrationProps> = ({ onComplete }) => {
             )}
           </div>
 
-          <div className="space-y-3 pt-2">
+          <div className="space-y-4 pt-2">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 bg-[#064e3b] text-white rounded-2xl font-black text-base shadow-xl shadow-emerald-900/20 transform active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              className="w-full py-5 bg-[#064e3b] text-white rounded-2xl font-black text-lg shadow-xl shadow-emerald-900/20 transform active:scale-[0.98] transition-all flex items-center justify-center gap-3"
             >
               {isLoading ? (
-                <div className="w-5 h-5 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+                <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
                   <span>{isLogin ? 'ግባ' : 'ተመዝገብ'}</span>
@@ -123,7 +123,7 @@ export const Registration: React.FC<RegistrationProps> = ({ onComplete }) => {
           </div>
         </form>
 
-        <p className="text-[9px] text-slate-300 font-black uppercase tracking-[0.4em]">Fidel Engine v4.0</p>
+        <p className="text-[10px] text-slate-300 font-black uppercase tracking-[0.4em]">Fidel Engine v4.0</p>
       </div>
 
       <style>{`

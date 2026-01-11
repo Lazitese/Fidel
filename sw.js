@@ -1,16 +1,17 @@
 
-const CACHE_NAME = 'fidel-ai-v2'; // Bumped version for publish
+const CACHE_NAME = 'fidel-ai-v4-final';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon.png',
-  './index.css'
+  'https://cdn.tailwindcss.com'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
   );
   self.skipWaiting();
 });
@@ -27,11 +28,15 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Use a Cache-First strategy for static assets, Network-First for API calls if needed
+  // Bypassing cache for API calls and external esm.sh modules to ensure latest logic
+  if (event.request.url.includes('supabase.co') || event.request.url.includes('esm.sh')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       return response || fetch(event.request).catch(() => {
-        // Optional: Return a generic offline page if fetch fails
+        // Fallback for offline mode if needed
       });
     })
   );

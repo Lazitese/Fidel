@@ -1,3 +1,4 @@
+
 {
   "name": "Fidel AI (ፊደል ኤአይ)",
   "short_name": "Fidel AI",
@@ -9,7 +10,7 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon.png",
+      "src": "https://cdn-icons-png.sh/512/3443/3443338.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
